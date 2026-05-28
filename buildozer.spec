@@ -19,4 +19,3 @@ android.api = 33
 android.minapi = 21
 android.sdk = 24
 android.ndk = 19c
-android.sdk_path = /home/runner/android-sdk
