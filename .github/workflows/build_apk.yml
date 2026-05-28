@@ -39,9 +39,8 @@ jobs:
 
           pip install buildozer cython
 
-      - name: Install Android SDK and accept licenses (into Buildozer default path)
+      - name: Install Android SDK (into Buildozer default path)
         run: |
-          # Buildozer 默认使用的 SDK 路径
           export SDK_ROOT=$HOME/.buildozer/android/platform/android-sdk
           mkdir -p $SDK_ROOT/cmdline-tools
           cd $SDK_ROOT/cmdline-tools
@@ -50,19 +49,25 @@ jobs:
           mv cmdline-tools latest
           rm commandlinetools-linux-11076708_latest.zip
 
-          # 创建 Buildozer 需要的旧版 tools/bin 目录结构
           mkdir -p $SDK_ROOT/tools/bin
           ln -s $SDK_ROOT/cmdline-tools/latest/bin/sdkmanager $SDK_ROOT/tools/bin/sdkmanager
 
-          # 接受所有许可证（关键步骤）
+          # 接受所有许可
           yes | $SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --sdk_root=$SDK_ROOT --licenses
 
-          # 安装必需的 SDK 组件
+          # 安装必需的组件
           $SDK_ROOT/cmdline-tools/latest/bin/sdkmanager --sdk_root=$SDK_ROOT \
             "platform-tools" "build-tools;37.0.0" "platforms;android-33"
 
       - name: Build APK
-        run: buildozer android debug
+        run: |
+          # 覆盖系统预装的 Android SDK 路径，强制 Buildozer 使用我们安装的 SDK
+          export ANDROID_HOME=$HOME/.buildozer/android/platform/android-sdk
+          export ANDROID_SDK_ROOT=$ANDROID_HOME
+          # 清除系统 NDK 环境变量，让 Buildozer 自己管理 NDK
+          unset ANDROID_NDK_HOME
+          unset ANDROID_NDK_ROOT
+          buildozer android debug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
