@@ -41,31 +41,30 @@ jobs:
 
       - name: Install Android SDK Commandline Tools
         run: |
-          export ANDROID_HOME=/usr/local/android-sdk
-          mkdir -p $ANDROID_HOME/cmdline-tools
+          sudo mkdir -p /usr/local/android-sdk/cmdline-tools
+          cd /usr/local/android-sdk/cmdline-tools
+          sudo wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
+          sudo unzip -q commandlinetools-linux-11076708_latest.zip
+          sudo mv cmdline-tools latest
+          sudo rm commandlinetools-linux-11076708_latest.zip
 
-          cd $ANDROID_HOME/cmdline-tools
-          wget -q https://dl.google.com/android/repository/commandlinetools-linux-11076708_latest.zip
-          unzip -q commandlinetools-linux-11076708_latest.zip
-          mv cmdline-tools latest
-          rm commandlinetools-linux-11076708_latest.zip
+          # 创建 buildozer 期望的旧版 tools/bin 结构
+          sudo mkdir -p /usr/local/android-sdk/tools/bin
+          sudo ln -s /usr/local/android-sdk/cmdline-tools/latest/bin/sdkmanager /usr/local/android-sdk/tools/bin/sdkmanager
 
-          # 创建 buildozer 期望的目录结构（旧版 tools/bin）
-          mkdir -p $ANDROID_HOME/tools/bin
-          ln -s $ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager $ANDROID_HOME/tools/bin/sdkmanager
-
-          # 设置环境变量
-          echo "ANDROID_HOME=$ANDROID_HOME" >> $GITHUB_ENV
-          echo "ANDROID_SDK_ROOT=$ANDROID_HOME" >> $GITHUB_ENV
-          echo "$ANDROID_HOME/cmdline-tools/latest/bin" >> $GITHUB_PATH
+          # 将 sdkmanager 加入到 PATH
+          echo "/usr/local/android-sdk/cmdline-tools/latest/bin" >> $GITHUB_PATH
+          # 同时设置环境变量供后续步骤使用
+          echo "ANDROID_HOME=/usr/local/android-sdk" >> $GITHUB_ENV
+          echo "ANDROID_SDK_ROOT=/usr/local/android-sdk" >> $GITHUB_ENV
 
       - name: Accept Android Licenses
         run: |
-          yes | sdkmanager --licenses
+          yes | sudo /usr/local/android-sdk/cmdline-tools/latest/bin/sdkmanager --licenses
 
       - name: Install Required SDK Packages
         run: |
-          sdkmanager "platform-tools" "build-tools;37.0.0" "platforms;android-33"
+          sudo /usr/local/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "build-tools;37.0.0" "platforms;android-33"
 
       - name: Build APK
         run: buildozer android debug
