@@ -1,0 +1,333 @@
+<RootWidget>:
+    MainScreen:
+        name: 'main'
+    TradeScreen:
+        name: 'trade'
+    PriceScreen:
+        name: 'price'
+    InferScreen:
+        name: 'infer'
+    AdjustScreen:
+        name: 'adjust'
+    AddAssetScreen:
+        name: 'add_asset'
+    HistoryScreen:
+        name: 'history'
+
+<MainScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        BoxLayout:
+            size_hint_y: 0.12
+            Button:
+                text: '新增'
+                on_release: app.root.current = 'add_asset'
+            Button:
+                text: '交易'
+                on_release: app.root.current = 'trade'
+            Button:
+                text: '价格'
+                on_release: app.root.current = 'price'
+            Button:
+                text: '倒推'
+                on_release: app.root.current = 'infer'
+            Button:
+                text: '调整'
+                on_release: app.root.current = 'adjust'
+            Button:
+                text: '历史'
+                on_release: app.root.current = 'history'
+            Button:
+                text: '刷新'
+                on_press: root.refresh()
+            Button:
+                text: '总览'
+                on_press: root.go_summary()
+        ScrollView:
+            GridLayout:
+                id: hold_container
+                cols: 1
+                size_hint_y: None
+                height: self.minimum_height
+
+<TradeScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: '交易录入'
+            size_hint_y: 0.08
+        BoxLayout:
+            size_hint_y: 0.1
+            Label:
+                text: '资产'
+                size_hint_x: 0.2
+            Spinner:
+                id: asset_spinner
+                size_hint_x: 0.8
+        BoxLayout:
+            size_hint_y: 0.1
+            Label:
+                text: '日期'
+                size_hint_x: 0.2
+            TextInput:
+                id: date_input
+                text: ''
+                hint_text: 'YYYY-MM-DD'
+        # 初首
+        BoxLayout:
+            size_hint_y: 0.15
+            Label:
+                text: '初首'
+                size_hint_x: 0.15
+            Spinner:
+                id: init_type
+                values: ['买入', '卖出']
+                text: '买入'
+                size_hint_x: 0.2
+            TextInput:
+                id: init_price
+                hint_text: '价'
+                input_filter: 'float'
+            TextInput:
+                id: init_qty
+                hint_text: '量'
+                input_filter: 'float'
+            TextInput:
+                id: init_fee
+                hint_text: '费'
+                text: '0'
+                input_filter: 'float'
+        # 累计
+        BoxLayout:
+            size_hint_y: 0.15
+            Label:
+                text: '累计'
+                size_hint_x: 0.15
+            Spinner:
+                id: acc_type
+                values: ['买入', '卖出']
+                text: '买入'
+                size_hint_x: 0.2
+            TextInput:
+                id: acc_price
+                hint_text: '价'
+                input_filter: 'float'
+            TextInput:
+                id: acc_qty
+                hint_text: '量'
+                input_filter: 'float'
+            TextInput:
+                id: acc_fee
+                hint_text: '费'
+                text: '0'
+                input_filter: 'float'
+        Button:
+            text: '提交'
+            size_hint_y: 0.12
+            on_release: root.submit_trade()
+        Button:
+            text: '返回主页'
+            size_hint_y: 0.1
+            on_release: app.root.current = 'main'
+
+<PriceScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: '价格录入'
+            size_hint_y: 0.1
+        BoxLayout:
+            Label:
+                text: '资产'
+                size_hint_x: 0.2
+            Spinner:
+                id: price_asset_spinner
+                size_hint_x: 0.8
+        BoxLayout:
+            Label:
+                text: '日期'
+                size_hint_x: 0.2
+            TextInput:
+                id: price_date
+                hint_text: 'YYYY-MM-DD'
+                size_hint_x: 0.8
+        BoxLayout:
+            Label:
+                text: '价格'
+                size_hint_x: 0.2
+            TextInput:
+                id: price_val
+                hint_text: '0.00'
+                input_filter: 'float'
+                size_hint_x: 0.8
+        Button:
+            text: '提交'
+            size_hint_y: 0.12
+            on_release: root.submit_price()
+        Button:
+            text: '返回'
+            size_hint_y: 0.1
+            on_release: app.root.current = 'main'
+
+<InferScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: '注资倒推'
+            size_hint_y: 0.1
+        BoxLayout:
+            Label:
+                text: '资产'
+                size_hint_x: 0.2
+            Spinner:
+                id: infer_asset_spinner
+                size_hint_x: 0.8
+                on_text: root.update_cur()
+        BoxLayout:
+            Label:
+                text: '账户'
+                size_hint_x: 0.2
+            Spinner:
+                id: infer_account
+                values: ['初首', '累计']
+                text: '累计'
+                size_hint_x: 0.8
+                on_text: root.update_cur()
+        BoxLayout:
+            Label:
+                text: '当前数'
+                size_hint_x: 0.2
+            TextInput:
+                id: cur_qty
+                readonly: True
+        BoxLayout:
+            Label:
+                text: '当前值'
+                size_hint_x: 0.2
+            TextInput:
+                id: cur_mv
+                readonly: True
+        BoxLayout:
+            Label:
+                text: '新数量'
+                size_hint_x: 0.2
+            TextInput:
+                id: new_qty
+                hint_text: '输入新数'
+                input_filter: 'float'
+        BoxLayout:
+            Label:
+                text: '新市值'
+                size_hint_x: 0.2
+            TextInput:
+                id: new_mv
+                hint_text: '输入新值'
+                input_filter: 'float'
+        Label:
+            id: infer_result
+            text: ''
+        Button:
+            text: '计算'
+            on_release: root.calculate()
+        Button:
+            text: '记录买入'
+            on_release: root.record()
+        Button:
+            text: '返回'
+            on_release: app.root.current = 'main'
+
+<AdjustScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: '账户调整'
+            size_hint_y: 0.1
+        BoxLayout:
+            Label:
+                text: '资产'
+                size_hint_x: 0.2
+            Spinner:
+                id: adjust_asset_spinner
+                size_hint_x: 0.8
+                on_text: root.on_asset_selected()
+        BoxLayout:
+            Label:
+                text: '初首现'
+                size_hint_x: 0.2
+            TextInput:
+                id: cur_init
+                readonly: True
+        BoxLayout:
+            Label:
+                text: '累计现'
+                size_hint_x: 0.2
+            TextInput:
+                id: cur_acc
+                readonly: True
+        BoxLayout:
+            Label:
+                text: '初首目'
+                size_hint_x: 0.2
+            TextInput:
+                id: new_init
+                input_filter: 'float'
+        BoxLayout:
+            Label:
+                text: '累计目'
+                size_hint_x: 0.2
+            TextInput:
+                id: new_acc
+                input_filter: 'float'
+        Button:
+            text: '应用'
+            on_release: root.apply()
+        Button:
+            text: '返回'
+            on_release: app.root.current = 'main'
+
+<AddAssetScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: '新增资产'
+            size_hint_y: 0.1
+        BoxLayout:
+            Label:
+                text: '代码'
+                size_hint_x: 0.2
+            TextInput:
+                id: code_input
+        BoxLayout:
+            Label:
+                text: '名称'
+                size_hint_x: 0.2
+            TextInput:
+                id: name_input
+        BoxLayout:
+            Label:
+                text: '类型'
+                size_hint_x: 0.2
+            Spinner:
+                id: type_spinner
+                values: ['股票', '基金']
+                text: '股票'
+        Button:
+            text: '添加'
+            on_release: root.submit_asset()
+        Button:
+            text: '返回'
+            on_release: app.root.current = 'main'
+
+<HistoryScreen>:
+    BoxLayout:
+        orientation: 'vertical'
+        Button:
+            text: '返回主页'
+            size_hint_y: 0.1
+            on_release: app.root.current = 'main'
+        ScrollView:
+            GridLayout:
+                id: hist_container
+                cols: 1
+                size_hint_y: None
+                height: self.minimum_height
